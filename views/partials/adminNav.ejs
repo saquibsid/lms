@@ -1,0 +1,77 @@
+<nav id="sidebar" class="bg-dark">
+    <div class="sidebar-header">
+        <h4>Welcome,
+            <%= user.name %>
+        </h4>
+    </div>
+
+    <ul class="list-unstyled components">
+        <li>
+            <a href="/dashboard">
+                <i class="fa fa-home"></i> Dashboard</a>
+        </li>
+        <% if(user.type == 1) { %>
+            <li>
+                <a href="#menu1" data-toggle="collapse" aria-expanded="false">
+                    <i class="fa fa-book"></i> Manage Courses</a>
+                <ul class="collapse list-unstyled" id="menu1">
+                    <li>
+                        <a href="/createCourse">Add Course</a>
+                    </li>
+                    <li>
+                        <a href="/updateCourse">Update Course</a>
+                    </li>
+                    <li>
+                        <a href="/deleteCourse">Delete Course</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#menu2" data-toggle="collapse" aria-expanded="false">
+                    <i class="fa fa-file-text"></i> Manage Lessons</a>
+                <ul class="collapse list-unstyled" id="menu2">
+                    <li>
+                        <a href="/createLesson">Add Lesson</a>
+                    </li>
+                    <li>
+                        <a href="/updateLesson">Update Lesson</a>
+                    </li>
+                    <li>
+                        <a href="/deleteLesson">Delete Lesson</a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="#menu3" data-toggle="collapse" aria-expanded="false">
+                    <i class="fa fa-download"></i> Manage Course Material</a>
+                <ul class="collapse list-unstyled" id="menu3">
+                    <li>
+                        <a href="/createCourseMaterial">Add Course Material</a>
+                    </li>
+                    <li>
+                        <a href="/updateCourseMaterial">Update Course Material</a>
+                    </li>
+                    <li>
+                        <a href="/deleteCourseMaterial">Delete Course Material</a>
+                    </li>
+                </ul>
+            </li>
+            <% } %>
+                <% if(user.type == 2) { %>
+                    <li>
+                        <a href="/myCourseMaterial">
+                            <i class="fa fa-download"></i> Course Materials</a>
+                    </li>
+                    <% } %>
+                        <li>
+                            <a href="/editProfile">
+                                <i class="fa fa-user"></i> Edit Profile</a>
+                        </li>
+    </ul>
+
+    <ul class="list-unstyled CTAs">
+        <li>
+            <a href="/logout" class="logout">Log Out</a>
+        </li>
+    </ul>
+</nav>

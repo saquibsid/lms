@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+        <% include partials/clientHead.ejs %>
+        <title><%= course.name %></title>
+    </head>
+    <body>
+           
+        <% include partials/clientNav.ejs %>
+
+          <main role="main">
+
+            <div class="jumbotron">
+                <div class="container">
+                  <h1 class="display-6"> <%= course.name %> </h1>
+                  <p> <%= course.oneLiner %> </p>
+                  <p>
+                        <i class="fa fa-user"></i> Created By <%= course.instructor.name %> &nbsp;&nbsp;
+                        <i class="fa fa-comment"></i> <%= course.language %> &nbsp;&nbsp;
+                        <i class="fa fa-info-circle"></i> <%= lessons.length %> Lectures &nbsp;&nbsp;
+                        <i class="fa fa-clock-o"></i> <%= course.duration %> Hours &nbsp;&nbsp; 
+                        <i class="fa fa-tag"></i> <%= course.category %>
+                   </p>
+                  <p>
+                      <% if(!enrolled) { %>
+                        <input type="hidden" id="courseId" value="<%= course._id %>" />
+                        <button class="btn btn-success btn-lg" onclick="enrollCourse()" role="button">Enroll Now</button>
+                      <% } else { %>
+                        <a class="btn btn-success btn-lg" href="/courseContent/<%= course._id %>" role="button">Go To Course</a>
+                      <% } %>
+                  </p>
+                </div>
+              </div>
+      
+          
+              <div class="container">
+      
+                <div class="row">
+                    <div class="col-sm-12">
+                    
+                          <div class="row">
+                              <div class="col-sm-12 p-3">
+                                  <h3>About Course</h3>
+                                  <%- course.description %>
+                              </div>
+                          </div>
+                          
+                          <div class="row">
+                              <div class="col-sm-12 p-3">
+                                  <h3>Course Curriculum </h3>
+                                  <div id="accordion">
+                                      <% for(var i=0; i < lessons.length; i++){ %>
+                                          <div class="card">
+                                              <div class="card-header" id="heading<%= i %>">
+                                              <h5 class="mb-0">
+                                                  <button class="btn btn-link" data-toggle="collapse" data-target="#collapse<%= i %>" aria-expanded="true" aria-controls="collapseOne">
+                                                          <%= i + 1 + '.' %>  <%= lessons[i].name %>
+                                                  </button>
+                                              </h5>
+                                              </div>
+                                          
+                                              <div id="collapse<%= i %>" class="collapse show" aria-labelledby="heading<%= i %>" data-parent="#accordion">
+                                              <div class="card-body">
+                                                      <%= lessons[i].description %>
+                                              </div>
+                                              </div>
+                                          </div>
+
+                                      <% } %>
+                                  </div>
+                              </div>
+                          </div>
+                    </div>
+                </div>
+              </div>
+          </main>
+     
+          <% include partials/clientFooter.ejs %>
+
+        <script type="text/javascript">
+           function enrollCourse()
+           {
+             var courseId = $('#courseId').val();
+             if(courseId.length != 0){
+                blockPage();
+                $.ajax({
+                    type: 'POST',
+                    url : '/enrollCourse',
+                    data: {courseId:courseId},
+                    success:function(response)
+                    {
+                        if(response.status == true) {
+                            showSuccessMessage(response.message);
+                            setTimeout(function(){
+                              window.location.reload();
+                            },2000);
+                        }
+                        else
+                        showErrorMessage("Failed to enroll. Reason - " + response.message);
+
+                        unblockPage();
+                    }
+                });
+             }
+           }
+        </script>
+    </body>
+  </html>

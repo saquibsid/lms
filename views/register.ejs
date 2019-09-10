@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include partials/clientHead.ejs %>
+        <title>Register</title>
+</head>
+<body>
+    <% include partials/clientNav.ejs %>
+        <main role="main">
+            <div class="album py-5 bg-light">
+                <div class="container">
+                    <div class="row">
+                      
+                        <div class="col-lg-7 bg-white p-4">
+                            <h3 class="mb-4">New to EGyan? Sign up for free!</h3>
+                            <form id="registrationForm" class="needs-validation" onsubmit=" return validateForm()" method="POST">
+                                <div class="row">
+                                    <div class="col-md-8 mb-3">
+                                        <label for="firstName">Full name</label>
+                                        <input type="text" class="form-control" id="fullName" name="name" placeholder="" value="" >
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="firstName">Type</label>
+                                        <select class="custom-select d-block w-100" id="type" name="type" >
+                                            <option value="1">Instructor</option>
+                                            <option value="2">Student</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="lastName">Email ID</label>
+                                        <input type="email" class="form-control" id="emailId" name="emailId" placeholder="you@example.com" value="" >
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="lastName">Password </label>
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="" value="" >
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="lastName">Confirm Password </label>
+                                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="" value="" >
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary btn-lg btn-block" id="submit" type="submit">Register Now!</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-5  bg-white p-4">
+                            <h3 class="mb-4">Have An Account? Log In Now!</h3>
+                            <form id="loginForm" method="POST" action="/login" onsubmit=" return validateLoginForm()">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="loginEmailId">Email ID</label>
+                                        <input type="email" class="form-control" id="username" name="username" placeholder="" value="" >
+                                        <div class="invalid-feedback">
+                                            Valid Email ID is .
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="lastName">Password</label>
+                                        <input type="password" class="form-control" id="loginPasswodTb" name="password" placeholder="" value="" >
+                                        <div class="invalid-feedback">
+                                            Password is .
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary btn-lg btn-block" id="submit-login" type="submit">Login</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <% include partials/clientFooter.ejs %>
+            <% include partials/clientFooter.ejs %>
+                <script>
+                    function validateLoginForm(){
+                        var username = $("#username").val();
+                        var password = $("#loginPasswodTb").val();
+
+                            if (username.length == 0) {
+                                    showErrorMessage("Please enter your email id");
+                                    $("#username").focus();
+                                    return false;
+                            } else {
+                                    validateEmail(username);
+                            }
+
+                            if (password.length == 0) {
+                                    showErrorMessage("Please enter your password");
+                                    $("#loginPasswodTb").focus();
+                                    return false;
+                            }
+
+                    }
+
+                    function validateForm(){
+                        var fullname=$("#fullName").val();
+                        var email=$("#emailId").val();
+                        var password= $("#password").val();
+                        var confirmPassword=$("#confirmPassword").val();
+                            if(fullname.length == 0) {
+                                showErrorMessage("Please enter fullname");
+                                $("#fullName").focus();
+                                return false;
+                            }
+                            if(email.length == 0){
+                                showErrorMessage("Please enter your email id");
+                                $("#emailId").focus();
+                                return false;
+                            }else{
+                                validateEmail(email);
+                            }
+                            if (password.length == 0) {
+                                showErrorMessage("Please enter your password");
+                                $("#password").focus();
+                                return false;
+                            }
+                            if (confirmPassword.length == 0) {
+                                showErrorMessage("Please enter your confirm password");
+                                $("#confirmPassword").focus();
+                                return false;
+                            }
+                            if(password != confirmPassword){
+                                showErrorMessage("Passowrd do not match");
+                                $("#confirmPassword").focus();
+                                return false;   
+                            }         
+                    }    
+                </script>
+</body>
+</html>

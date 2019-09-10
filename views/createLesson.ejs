@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <% include partials/adminHead.ejs %>
+
+        <title>Create Lesson</title>
+    </head>
+    <body> 
+       
+        <div class="wrapper">
+            <!-- Sidebar -->
+            <% include partials/adminNav.ejs %>
+
+             <!-- Page Content -->
+             <div id="content">
+                <div class="album bg-light">
+                    <div class="container">
+        
+                        <div class="row">
+                            <div class="col-lg-12 bg-white p-4 box-shadow">
+                                <h3 class="mb-4">Create New Lesson</h3>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="courseSelectCombo">Select Course</label>
+                                        <select class="custom-select d-block w-100" id="courseSelectCombo">
+                                            <% for(var i=0; i < course.length; i++){ %>
+                                                <option value="<%= course[i]._id %>"><%= course[i].name %></option>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="nameTb">Lesson Name</label>
+                                        <input type="text" class="form-control" id="nameTb" placeholder="" maxlength="100" value="" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="description">Description</label>
+                                        <textarea class="form-control" id="description" maxlength="300" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="videoUpload">Upload Video</label>
+                                        <form id="uploadForm" enctype="multipart/form-data" action="/video" method="post">
+                                            <input type="file" class="form-control" id="videoFile" name="videoFile" accept=".mp4" required>                                 
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 text-right">
+                                        <input type="hidden" id="photoUri" />
+                                        <button class="btn btn-primary btn-lg" type="button" onclick="uploadVideo();">Add New Lesson</button>  
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+
+        </div>
+      
+     
+        <% include partials/adminFooter.ejs %>
+        
+          <script type="text/javascript">
+
+                $(document).ready(function(){
+                  
+                });
+                
+                function uploadVideo()
+                {
+                    if(!validateForm())
+                    {
+                        return false;
+                    }
+
+                    blockPage();
+
+                    $('#uploadForm').ajaxSubmit({
+                        error: function(xhr) {
+                            status('Error: ' + xhr.status);
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            if(response.status == true) {
+                                addLesson(response.filePath);
+                            }
+                            else {
+                                showErrorMessage("Failed to upload video. Reason - " + response.message);
+                                unblockPage();
+                            }
+                        }
+                    });
+                }
+
+                function addLesson(videoPath)
+                {
+                    var courseId = $('#courseSelectCombo').val();
+                    var nameTb = encodeURIComponent($('#nameTb').val());
+                    var description = encodeURIComponent($('#description').val());
+
+                    var data = {
+                        courseId:courseId,
+                        name:nameTb,
+                        description:description,
+                        videoFilePath:videoPath
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url : '/createLesson',
+                        data: data,
+                        success:function(response){
+                            if(response.status == true) {
+                                showSuccessMessage(response.message);
+                                resetForm();
+                            }
+                            else
+                            showErrorMessage("Failed to add lesson. Reason - " + response.message);
+
+                            unblockPage();
+                        }
+                    });
+                }
+
+                function validateForm()
+                {
+                    var nameTb = $('#nameTb').val();
+                    var description = $('#description').val();
+                    var file = $('#videoFile').val();
+
+                    if(nameTb.length == 0) {
+                        showErrorMessage("Please enter name");
+                        $('#nameTb').focus();
+                        return false;
+                    }
+                    if(description.length == 0) {
+                        showErrorMessage("Please enter description");
+                        $('#description').focus();
+                        return false;
+                    }
+                    if(file.length == 0) {
+                        showErrorMessage("Please upload the video");
+                        $('#videoFile').focus();
+                        return false;
+                    }
+                    return true;
+                }
+                
+                function resetForm()
+                {
+                    $('#nameTb').val('');
+                    $('#description').val('');
+                    $('#videoFile').val('');
+                }
+          </script>
+
+    </body>
+  </html>

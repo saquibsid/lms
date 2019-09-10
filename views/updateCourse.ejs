@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <% include partials/adminHead.ejs %>
+
+        <title>Update Course</title>
+</head>
+
+<body>
+
+    <div class="wrapper">
+
+        <!-- Sidebar -->
+        <% include partials/adminNav.ejs %>
+
+            <!-- Page Content -->
+            <div id="content">
+                <div class="album bg-light">
+                    <div class="container">
+
+                        <div class="row">
+                            <div class="col-lg-12 bg-white p-4 box-shadow">
+                                <h3 class="mb-4">Update Course</h3>
+
+                                <form id="courseForm" class="needs-validation" method="POST" novalidate>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label for="courseSelectCombo">Select Course</label>
+                                            <select class="custom-select d-block w-100" id="courseSelectCombo" onchange="getSelectedCourseDetails()">
+                                                <% for(var i=0; i < course.length; i++){ %>
+                                                    <option value="<%= course[i]._id %>">
+                                                        <%= course[i].name %>
+                                                    </option>
+                                                    <% } %>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-8 mb-3">
+                                            <label for="nameTb">Course Name</label>
+                                            <input type="text" class="form-control" id="nameTb" placeholder="" maxlength="100" value="" required>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="categoryCombo">Category</label>
+                                            <select class="custom-select d-block w-100" id="categoryCombo" required>
+                                                <option value="Web Development">Web Development</option>
+                                                <option value="Mobile App Development">Mobile App Development</option>
+                                                <option value="Programming Languages">Programming Languages</option>
+                                                <option value="Database">Database</option>
+                                                <option value="Software Testing">Software Testing</option>
+                                                <option value="Software Engineering">Software Engineering</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label for="oneLinerTb">One Liner</label>
+                                            <input type="text" class="form-control" id="oneLinerTb" maxlength="200" placeholder="" value="" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label for="durationTb">Duration in Hours </label>
+                                            <input type="number" class="form-control" id="durationTb" min="1" placeholder="" value="" required>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="languageTb">Language </label>
+                                            <input type="text" class="form-control" id="languageTb" placeholder="" maxlength="50" value="" required>
+                                        </div>
+                                        <div class="col-md-5 mb-3">
+                                            <label for="lastName">Upload Cover Photo </label>
+                                            <form id="courseCoverImage" enctype="multipart/form-data" action="/coverPhoto" method="post">
+                                                <input type="file" class="form-control" name="uploadFile" id="uploadFile" accept=".jpg,.jpeg,.png">
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label for="description">Description</label>
+                                            <textarea class="form-control" id="description"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 text-right">
+                                            <input type="hidden" id="photoUri" />
+                                            <button class="btn btn-primary btn-lg" id="updateCourse" type="button" onclick="uploadCoverPhoto()">Update Course</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+
+
+
+    <% include partials/adminFooter.ejs %>
+
+        <script>
+        //implement the javascript
+            $(document).ready(function(){
+                getSelectedCourseDetails();
+            });
+
+            function getSelectedCourseDetails(){
+                var courseId    =   $("#courseSelectCombo").val();
+                $.ajax({
+                    type    :   'post',
+                    url     :   '/getCourseDetails',
+                    data    :   {id:courseId},
+                    success: function (response) {
+                        console.log(response);
+                            if (response.status == true) {
+                                   $("#nameTb").val(response.course.name);
+                                   $("#categoryCombo").val(response.course.category);
+                                   $("#oneLinerTb").val(response.course.oneLiner);
+                                   $("#durationTb").val(response.course.duration);
+                                   $("#languageTb").val(response.course.language);
+                                   $("#photoUri").val(response.course.coverPhoto);
+                                   $("#description").val(response.course.description); 
+                            }
+                            else {
+                                showErrorMessage("Failed to get course list. Reason - " + response.message);
+                            }
+                            unblockPage();
+                        }         
+                })                
+            }
+
+            function uploadCoverPhoto() {
+                    if (!validateForm()) {
+                        return false;
+                    }
+
+                    blockPage();
+
+                    if ($('#uploadFile').val().length != 0){
+                        
+                        $('#courseCoverImage').ajaxSubmit({
+                            error: function (xhr) {
+                                status('Error: ' + xhr.status);
+                            },
+                            success: function (response) {
+                                console.log(response);
+                                if (response.status == true) {
+                                    addCourse(response.filePath);
+                                }
+                                else {
+                                    showErrorMessage("Failed to upload video. Reason - " + response.message);
+                                    unblockPage();
+                                }
+                            }
+                        });
+                    
+                    }else{
+                         var currentPhotoPath = $('#photoUri').val();
+                        if (currentPhotoPath.length != 0) {
+                            updateCourse(currentPhotoPath);
+                        }
+                    }
+                }
+
+                function updateCourse(filePath) {
+                    var courseId = $("#courseSelectCombo").val();
+                    var nameTb = encodeURIComponent($('#nameTb').val());
+                    var categoryCombo = $("#categoryCombo").val();
+                    var oneLinerTb = encodeURIComponent($('#oneLinerTb').val());
+                    var durationTb = $("#durationTb").val();
+                    var languageTb = $("#languageTb").val();
+                    var description = encodeURIComponent($("#description").val());
+
+                    var data = {
+                        id: courseId,
+                        name: nameTb,
+                        category: categoryCombo,
+                        oneLiner: oneLinerTb,
+                        duration: durationTb,
+                        language: languageTb,
+                        coverPhoto: filePath,
+                        description: description
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/updateCourse',
+                        data: data,
+                        success: function (response) {
+
+                            if (response.status == true) {
+                                showSuccessMessage(response.message);
+                                resetForm();
+                            }
+                            else
+                                showErrorMessage("Failed to update course. Reason - " + response.message);
+                            unblockPage();
+                        }
+                    });
+                }
+
+                function validateForm() {
+                    var nameTb = $('#nameTb').val();
+                    var oneLinerTb = $('#oneLinerTb').val();
+                    var durationTb = $("#durationTb").val();
+                    var languageTb = $("#languageTb").val();
+                    var file = $('#uploadFile').val();
+                    var currentPhotoPath = $("#photoUri").val();
+                    var description = $("#description").val();
+                    if (nameTb.length == 0) {
+                        showErrorMessage("Please enter course name");
+                        $('#nameTb').focus();
+                        return false;
+                    }
+                    if (oneLinerTb.length == 0) {
+                        showErrorMessage("Please enter oneliner");
+                        $('#oneLinerTb').focus();
+                        return false;
+                    }
+                    if (durationTb.length == 0) {
+                        showErrorMessage("Please enter course duration");
+                        $('#durationTb').focus();
+                        return false;
+                    }
+                    if (languageTb.length == 0) {
+                        showErrorMessage("Please enter language");
+                        $('#languageTb').focus();
+                        return false;
+                    }
+                    if (description.length == 0) {
+                        showErrorMessage("Please enter description");
+                        $('#description').focus();
+                        return false;
+                    }
+                    if (file.length == 0 && currentPhotoPath.length == 0) {
+                        showErrorMessage("Please upload the file");
+                        $('#uploadFile').focus();
+                        return false;
+                    }
+                    return true;
+                }
+
+                function resetForm() {
+                    $('#nameTb').val('');
+                    $('#description').val('');
+                    $('#uploadFile').val('');
+                    $("#oneLinerTb").val('');
+                    $("#durationTb").val('');
+                    $("#languageTb").val('');
+                }
+        </script>
+
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+<% if(message && message.length > 0) {  %>
+<script>
+     new PNotify({
+            title: 'Oh No!',
+            text: '<%= message %>',
+            icon: 'icon-blocked',
+            type: '<%= type %>',
+            addclass: 'bg-danger',
+            text_escape: false
+        });
+</script>
+<% } %>
